@@ -1,6 +1,7 @@
 # BITCOIN TABLE
 
-This is a react app for displaying the latest 100 days of bitcoin data
+This is a react app for displaying the latest 100 days of bitcoin data.
+The webpage uses MUI components to display the content. 
 
 ## Available Scripts
 
