@@ -89,7 +89,7 @@ const TableMaker = () => {
 
     //Variables for page counter
     let currentPage = paginationStop / 20;
-    const totalPage = 5;
+    const totalPage = 5; 
 
     //Return of table
     return (
@@ -98,7 +98,8 @@ const TableMaker = () => {
                 <Typography
                     variant="h1"
                     fontSize={40}
-                    align="center">
+                    align="center"
+                    padding={2}>
                     TABLE INFORMATION BITCOIN
                 </Typography>
                 {result.status === 'loading' && <div>Loading...</div>}
@@ -129,7 +130,8 @@ const TableMaker = () => {
                         variant="h2"
                         fontSize={20}
                         align="center"
-                        display="block">
+                        display="block"
+                        padding={2}>
                         Page {currentPage} / {totalPage}
                     </Typography>
                 </Container>
