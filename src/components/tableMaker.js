@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import { styled } from '@mui/material/styles'
 import { Container, Typography } from "@mui/material";
 import { Button } from '@mui/material'
+import unixTime from "../util/unixTime";
 
 
 const TableMaker = () => {
@@ -30,7 +31,7 @@ const TableMaker = () => {
         backgroundColor: '#709C44'
     }));
 
-    const StyledPagiButton = styled(Button)(({ theme }) => ({     
+    const StyledPagiButton = styled(Button)(({ theme }) => ({
         backgroundColor: '#709C44',
         color: 'white',
         margin: '10px',
@@ -50,47 +51,50 @@ const TableMaker = () => {
     }));
 
     //Const for saving the result from the api call from apiCall.js which does the api call
-    const result = useAPIService();
-
-    //https://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
-    //https://www.tutorialrepublic.com/faq/how-to-convert-a-unix-timestamp-to-time-in-javascript.php
-    //Converts unixtimestamp to readable string
-    function unixToString(unixTime) {
-        let date = new Date(unixTime * 1000)
-        return date.toLocaleDateString("en-GB");
-    }
+    const { data, status } = useAPIService();
 
     //https://stackoverflow.com/questions/71751607/react-app-how-to-show-only-limited-number-of-array-items
 
     //Variables for pagination
+    const pageSize = 10;
+
     const [paginationStart, setPaginationStart] = useState(0);
-    const [paginationStop, setPaginationStop] = useState(20);
+    const [paginationStop, setPaginationStop] = useState(pageSize);
+
+
+
+    if (status === "loading") {
+        return (
+            <div>Loading</div>
+        )
+    }
+    //const data = result.data.Data.Data;
+
+    //Variables for page counter
+    const dataLength = data.length; //kan brukes direkte
+    let currentPage = paginationStop / pageSize;
+    const totalPage = Math.ceil(dataLength / pageSize);
 
     //Function to increase or decrease paginationStart and paginationStop
     // arg: increaseBool is a boolean, when true increase pagination and when false decrease
     function paginate(increaseBool) {
         if (increaseBool) {
-            if (paginationStart < 80 && paginationStop < 100) {
-                let newStart = paginationStart + 20;
-                let newStop = paginationStop + 20;
+            if (paginationStart < (dataLength - pageSize) && paginationStop < dataLength) {
+                let newStart = paginationStart + pageSize;
+                let newStop = paginationStop + pageSize;
                 setPaginationStart(newStart)
                 setPaginationStop(newStop);
             }
         }
         else {
-            if (paginationStart > 0 && paginationStop > 20) {
-                let newStart = paginationStart - 20;
-                let newStop = paginationStop - 20;
+            if (paginationStart > 0 && paginationStop > pageSize) {
+                let newStart = paginationStart - pageSize;
+                let newStop = paginationStop - pageSize;
                 setPaginationStart(newStart)
                 setPaginationStop(newStop);
             }
         }
     }
-
-    //Variables for page counter
-    let currentPage = paginationStop / 20;
-    const totalPage = 5; 
-
     //Return of table
     return (
         <>
@@ -102,7 +106,7 @@ const TableMaker = () => {
                     padding={2}>
                     TABLE INFORMATION BITCOIN
                 </Typography>
-                {result.status === 'loading' && <div>Loading...</div>}
+
                 <Container>
 
                     <Table>
@@ -115,10 +119,10 @@ const TableMaker = () => {
                             </StyledTableRowHeader>
                         </TableHead>
                         <TableBody>
-                            {result.status === "loaded" &&
-                                result.data.Data.Data.slice(paginationStart, paginationStop).map(entry => (
+                            {status === "loaded" &&
+                                data.slice(paginationStart, paginationStop).map(entry => (
                                     <StyledTableRow>
-                                        <TableCell>{unixToString(entry.time)}</TableCell>
+                                        <TableCell>{unixTime(entry.time)}</TableCell>
                                         <TableCell>{entry.high}</TableCell>
                                         <TableCell>{entry.low}</TableCell>
                                         <TableCell>{entry.close}</TableCell>
@@ -136,7 +140,8 @@ const TableMaker = () => {
                     </Typography>
                 </Container>
                 <ButtonContainer>
-                    <StyledPagiButton onClick={() => paginate(false)}>PREVIOUS PAGE</StyledPagiButton>
+                    <StyledPagiButton disabled={!(paginationStart > 0 && paginationStop > pageSize)}
+                        onClick={() => paginate(false)}>PREVIOUS PAGE</StyledPagiButton>
                     <StyledPagiButton onClick={() => paginate(true)}>NEXT PAGE</StyledPagiButton>
                 </ButtonContainer>
 
